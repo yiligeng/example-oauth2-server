@@ -2,16 +2,19 @@ import time
 from flask import Blueprint, request, session, url_for
 from flask import render_template, redirect, jsonify
 from werkzeug.security import gen_salt
-from authlib.integrations.flask_oauth2 import current_token
+from .flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
 from .models import db, User, OAuth2Client
 from .oauth2 import authorization, require_oauth
-
+import logging
 
 bp = Blueprint(__name__, 'home')
 
+logger = logging.getLogger("access")
+
 
 def current_user():
+    logger.info("session: %s",session)
     if 'id' in session:
         uid = session['id']
         return User.query.get(uid)
@@ -24,11 +27,15 @@ def split_by_crlf(s):
 
 @bp.route('/', methods=('GET', 'POST'))
 def home():
+
+    logger.info("主页Home已经进入")
+
     if request.method == 'POST':
         username = request.form.get('username')
-        user = User.query.filter_by(username=username).first()
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username,password=password).first()
         if not user:
-            user = User(username=username)
+            user = User(username=username,password=password)
             db.session.add(user)
             db.session.commit()
         session['id'] = user.id
@@ -125,5 +132,12 @@ def revoke_token():
 @bp.route('/api/me')
 @require_oauth('profile')
 def api_me():
+    user = current_token.user
+    return jsonify(id=user.id, username=user.username)
+
+
+@bp.route('/api/order')
+@require_oauth('order')
+def api_order():
     user = current_token.user
     return jsonify(id=user.id, username=user.username)

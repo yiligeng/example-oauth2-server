@@ -1,8 +1,8 @@
-from authlib.integrations.flask_oauth2 import (
+from .flask_oauth2 import (
     AuthorizationServer,
     ResourceProtector,
 )
-from authlib.integrations.sqla_oauth2 import (
+from .sqla_oauth2 import (
     create_query_client_func,
     create_save_token_func,
     create_revocation_endpoint,

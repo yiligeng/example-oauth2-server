@@ -1,6 +1,6 @@
 import time
 from flask_sqlalchemy import SQLAlchemy
-from authlib.integrations.sqla_oauth2 import (
+from .sqla_oauth2 import (
     OAuth2ClientMixin,
     OAuth2AuthorizationCodeMixin,
     OAuth2TokenMixin,
@@ -12,6 +12,7 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(40), unique=True)
+    password = db.Column(db.String(128),nullable=False)
 
     def __str__(self):
         return self.username
